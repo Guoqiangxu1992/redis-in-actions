@@ -10,6 +10,7 @@ import com.xu.redis.model.User;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.JedisPubSub;
 
 /**
  * 
@@ -17,9 +18,7 @@ import redis.clients.jedis.JedisPoolConfig;
  * Redis客户端访问
  * </p>
  * 
- * @author xuguoqiang 
- * @创建时间：2017年2月11日 
- * @version： V1.0
+ * @author xuguoqiang @创建时间：2017年2月11日 @version： V1.0
  */
 public class RedisClient {
 	public static JedisPool jedisPool; // 池化管理jedis链接池
@@ -170,6 +169,8 @@ public class RedisClient {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
+		} finally {
+			jedisPool.returnResource(jedis);
 		}
 		return true;
 	}
@@ -188,6 +189,8 @@ public class RedisClient {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
+		} finally {
+			jedisPool.returnResource(jedis);
 		}
 	}
 
@@ -209,6 +212,8 @@ public class RedisClient {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
+		} finally {
+			jedisPool.returnResource(jedis);
 		}
 	}
 
@@ -228,6 +233,8 @@ public class RedisClient {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
+		} finally {
+			jedisPool.returnResource(jedis);
 		}
 	}
 
@@ -255,6 +262,113 @@ public class RedisClient {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return list;
+		} finally {
+			jedisPool.returnResource(jedis);
+		}
+	}
+
+	/************************************* List ************************************************/
+
+	/**
+	 * 
+	 * 通过左边边插入对象
+	 * 
+	 * @return 第几个元素
+	 * 
+	 */
+	public static Long IntoListByRpush(String key, Object value) {
+		Jedis jedis = null;
+		try {
+			jedis = jedisPool.getResource();
+			String value1 = JSON.toJSONString(value);
+			return jedis.lpush(key, value1);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		} finally {
+			jedisPool.returnResource(jedis);
+		}
+	}
+
+	/**
+	 * 
+	 * 从一个队列里面弹出一个插入到另外一个队列
+	 * 
+	 * @return 返回被插入临时队列的任务
+	 * 
+	 */
+	public static String rpoplpush(String key1, String key2) {
+		Jedis jedis = null;
+		try {
+			jedis = jedisPool.getResource();
+			return jedis.rpoplpush(key1, key2);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		} finally {
+			jedisPool.returnResource(jedis);
+		}
+	}
+
+	/**
+	 * 
+	 * 从一个队列里面弹出一个并且清除
+	 * 
+	 * @return 返回被插入临时队列的任务
+	 * 
+	 */
+	public static String rpop(String key) {
+		Jedis jedis = null;
+		try {
+			jedis = jedisPool.getResource();
+			return jedis.rpop(key);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		} finally {
+			jedisPool.returnResource(jedis);
+		}
+	}
+
+	/**
+	 * 
+	 * 订阅某一个频道的消息 第一个监听 第二个 频道
+	 * 
+	 * @return
+	 * 
+	 */
+	public static boolean receiveMessage(JedisPubSub listener, String channels) {
+		Jedis jedis = null;
+		try {
+			jedis = jedisPool.getResource();
+			jedis.subscribe(listener, channels);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		} finally {
+			jedisPool.returnResource(jedis);
+		}
+	}
+
+	/**
+	 * 
+	 * 发布给某一个频道的消息 第一个频道
+	 * 
+	 * @return 订阅者的数量
+	 * 
+	 */
+	public static Long publishMessage(String channels, String message) {
+		Jedis jedis = null;
+		try {
+			jedis = jedisPool.getResource();
+			Long receiver = jedis.publish(channels, message);
+			return receiver;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		} finally {
+			jedisPool.returnResource(jedis);
 		}
 	}
 
