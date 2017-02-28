@@ -2,7 +2,9 @@ package com.xu.redis.client;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import com.alibaba.fastjson.JSON;
 import com.xu.redis.model.User;
@@ -11,6 +13,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisPubSub;
+import redis.clients.jedis.Tuple;
 
 /**
  * 
@@ -267,6 +270,26 @@ public class RedisClient {
 		}
 	}
 
+	/**
+	 * 
+	 * 通过对象
+	 * 
+	 * @return 第几个元素
+	 * 
+	 */
+	public static boolean sAdd(String key, Map hash) {
+		Jedis jedis = null;
+		try {
+			jedis = jedisPool.getResource();
+			 return "ok".equals(jedis.hmset(key, hash));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		} finally {
+			jedisPool.returnResource(jedis);
+		}
+	}
+
 	/************************************* List ************************************************/
 
 	/**
@@ -371,5 +394,76 @@ public class RedisClient {
 			jedisPool.returnResource(jedis);
 		}
 	}
+/*************************************SortSet***********************************************/
 
+/**
+ * key,
+ * score:权重
+ * member:成员
+ * 
+ * 
+ * */	
+	
+public static Long zAddSortSet(String key,Double score,String member){
+	Jedis jedis = null;
+	try{
+		jedis = jedisPool.getResource();
+		Long zdd = jedis.zadd(key, score, member);
+		return zdd;
+	}catch(Exception e){
+		e.printStackTrace();
+		return null;
+	}finally {
+		jedisPool.returnResource(jedis);
+	}
+	
+}
+
+
+/**
+ * key,
+ * start:起始位置
+ * end:终止位置，-1表示末尾
+ * return:按照权重拍好顺序的值
+ * 
+ * */	
+	
+public static Set<Tuple> zRangeWithScoreSortSet(String key,Long start,Long end){
+	Jedis jedis = null;
+	try{
+		jedis = jedisPool.getResource();
+		Set<Tuple> zdd = jedis.zrangeWithScores(key, start, end);
+		return zdd;
+	}catch(Exception e){
+		e.printStackTrace();
+		return null;
+	}finally {
+		jedisPool.returnResource(jedis);
+	}
+	
+}
+
+
+/**
+ * key,
+ * start:起始位置
+ * end:终止位置，-1表示末尾
+ * return:按照权重反向顺序的值
+ * 
+ * */	
+	
+public static Set<Tuple> zRvRangeWithScoreSortSet(String key,Long start,Long end){
+	Jedis jedis = null;
+	try{
+		jedis = jedisPool.getResource();
+		Set<Tuple> zdd = jedis.zrevrangeWithScores(key, start, end);
+		return zdd;
+	}catch(Exception e){
+		e.printStackTrace();
+		return null;
+	}finally {
+		jedisPool.returnResource(jedis);
+	}
+	
+}
 }
