@@ -50,7 +50,7 @@ public class Test {
 		for(Tuple t:set){
 			System.out.println("元素:--->"+t.getElement()+"权重----->"+t.getScore());
 		}*/
-		Product product = new Product();
+	/*	Product product = new Product();
 		product.setPrice(23.2);
 		product.setTitle("哈密瓜001");
 		addGoods(product);
@@ -58,7 +58,19 @@ public class Test {
 			product.setTitle("产品title:"+System.currentTimeMillis());
 			product.setPrice(2000.4);
 			addGoods(product);
-		}
+		}*/
+		
+		RedisClient.zAdd("xu_setscore", 12d,"xu1");
+		RedisClient.zAdd("xu_setscore", 14d,"xu2");
+		RedisClient.zAdd("xu_setscore", 11d,"xu3");
+		RedisClient.zAdd("xu_setscore", 17d,"xu4");
+		RedisClient.zAdd("xu_setscore1", 12d,"yang1");
+		RedisClient.zAdd("xu_setscore1", 14d,"xu2");
+		RedisClient.zAdd("xu_setscore1", 11d,"yang3");
+		RedisClient.zAdd("xu_setscore1", 17d,"xu3");
+		
+		RedisClient.zinterstore("xuxuxu1", "xu_setscore", "xu_setscore1");
+		RedisClient.zunionstore("xuxuxu2", "xu_setscore", "xu_setscore1");
 		
 		
 	}

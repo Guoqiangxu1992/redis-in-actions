@@ -404,7 +404,7 @@ public class RedisClient {
  * 
  * */	
 	
-public static Long zAddSortSet(String key,Double score,String member){
+public static Long zAdd(String key,Double score,String member){
 	Jedis jedis = null;
 	try{
 		jedis = jedisPool.getResource();
@@ -457,6 +457,52 @@ public static Set<Tuple> zRvRangeWithScoreSortSet(String key,Long start,Long end
 	try{
 		jedis = jedisPool.getResource();
 		Set<Tuple> zdd = jedis.zrevrangeWithScores(key, start, end);
+		return zdd;
+	}catch(Exception e){
+		e.printStackTrace();
+		return null;
+	}finally {
+		jedisPool.returnResource(jedis);
+	}
+	
+}
+
+
+/**
+ * deskey,求key1和key2交集放在deskey
+ * 
+ * return:key1和key2交集
+ * 
+ * */	
+	
+public static Long zinterstore(String dstkey,String key1,String key2){
+	Jedis jedis = null;
+	try{
+		jedis = jedisPool.getResource();
+		Long zdd = jedis.zinterstore(dstkey,key1,key2);
+		return zdd;
+	}catch(Exception e){
+		e.printStackTrace();
+		return null;
+	}finally {
+		jedisPool.returnResource(jedis);
+	}
+	
+}
+
+
+/**
+ * deskey,求key1和key2并集放在deskey
+ * 
+ * return:key1和key2并集
+ * 
+ * */	
+	
+public static Long zunionstore(String dstkey,String key1,String key2){
+	Jedis jedis = null;
+	try{
+		jedis = jedisPool.getResource();
+		Long zdd = jedis.zunionstore(dstkey,key1,key2);
 		return zdd;
 	}catch(Exception e){
 		e.printStackTrace();
